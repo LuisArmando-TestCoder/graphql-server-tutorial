@@ -21,6 +21,14 @@ import { config } from "dotenv";
 
 config();
 
+/**
+ * Setting up apollo and mongoose connections
+ */
+import { ApolloServer } from "apollo-server";
+import mongoose from "mongoose";
+
+const StandardHTTPSPort = 443;
+const port = process.env.PORT || StandardHTTPSPort;
 const DBURI = `
 mongodb+srv://
 ${process.env.ATLAS_USER}:
@@ -31,15 +39,6 @@ ${process.env.ATLAS_PASSWORD}
 `
   .replace(/\n/g, "")
   .trim();
-
-/**
- * Setting up apollo and mongoose connections
- */
-import { ApolloServer } from "apollo-server";
-import mongoose from "mongoose";
-
-const StandardHTTPSPort = 443;
-const port = process.env.PORT || StandardHTTPSPort;
 
 mongoose
   .connect(DBURI)
