@@ -8,9 +8,11 @@ const builder = new SchemaBuilder({});
 /**
  * Setting up schema's fields
  */
-import fields from "./fields";
+import queries from "./queries";
+import mutations from "./mutations";
 
-builder.queryType({ fields });
+builder.queryType({ fields: queries });
+builder.mutationType({ fields: mutations });
 
 /**
  * Setting up environment variables
@@ -36,11 +38,16 @@ ${process.env.ATLAS_PASSWORD}
 import { ApolloServer } from "apollo-server";
 import mongoose from "mongoose";
 
+const StandardHTTPSPort = 443;
+const port = process.env.PORT || StandardHTTPSPort;
+
 mongoose
   .connect(DBURI)
   .then(() => {
+    console.log("Listening at", port);
+
     new ApolloServer({
       schema: builder.toSchema({}),
-    }).listen(process.env.PORT || 443 /* HTTPS port */);
+    }).listen(port);
   })
   .catch(console.error);
