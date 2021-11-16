@@ -27,7 +27,7 @@
   },
   "scripts": {
     "watch": "tsc -w",
-    "dev": "nodemon dist/index.js"
+    "dev": "nodemon dist"
   },
   "repository": {
     "type": "git",

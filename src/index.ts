@@ -1,52 +1,37 @@
-/**
- * Setting up SchemaBuilder
- */
-import SchemaBuilder from "@giraphql/core";
-
-const builder = new SchemaBuilder({});
-
-/**
- * Setting up schema's fields
- */
-import queries from "./queries";
-import mutations from "./mutations";
-
-builder.queryType({ fields: queries });
-builder.mutationType({ fields: mutations });
-
-/**
- * Setting up environment variables
- */
+import query from "./query";
+// import mutation from "./mutation";
 import { config } from "dotenv";
+import { MongoClient } from 'mongodb';
+import express from "express";
+import { graphqlHTTP } from "express-graphql";
+import { GraphQLSchema } from "graphql";
 
 config();
 
-/**
- * Setting up apollo and mongoose connections
- */
-import { ApolloServer } from "apollo-server";
-import mongoose from "mongoose";
+const schema = new GraphQLSchema({
+  query,
+  // mutation
+});
+const app = express();
+const HTTP_PORT = 443;
+const PORT = process.env.PORT || HTTP_PORT;
 
-const StandardHTTPSPort = 443;
-const port = process.env.PORT || StandardHTTPSPort;
-const DBURI = `
-mongodb+srv://
-${process.env.ATLAS_USER}:
-${process.env.ATLAS_PASSWORD}
-@cluster0.0o2ap.mongodb.net
-/myFirstDatabase
-?retryWrites=true&w=majority
-`
-  .replace(/\n/g, "")
-  .trim();
-
-mongoose
-  .connect(DBURI)
-  .then(() => {
-    console.log("Listening at", port);
-
-    new ApolloServer({
-      schema: builder.toSchema({}),
-    }).listen(port);
+app.use(
+  "/graphql",
+  graphqlHTTP({
+    schema,
+    graphiql: true,
   })
-  .catch(console.error);
+);
+console.log(`http://localhost:${PORT}`);
+console.log(process.env.DB_CONNECTION);
+
+const client = new MongoClient(
+  process.env.DB_CONNECTION as string
+);
+
+client.connect(err => {
+  app.listen(PORT, () => {
+    console.log(`Listening on port ${PORT}`);
+  });
+});
